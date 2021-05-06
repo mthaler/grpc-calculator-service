@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"time"
 )
 
 func main() {
@@ -21,13 +22,14 @@ func main() {
 	c := calculatorpb.NewCalculatorServiceClient(cc)
 
 	//doUnaryRPC(c)
-	doServerStreaming(c)
+	//doServerStreaming(c)
+	doClientStreaming(c)
 }
 
 func doUnaryRPC(c calculatorpb.CalculatorServiceClient) {
 	log.Println("Starting to do unary RPC...")
 	request := &calculatorpb.SumRequest{
-		FirstNumber: 3,
+		FirstNumber:  3,
 		SecondNumnber: 4,
 	}
 
@@ -57,4 +59,27 @@ func doServerStreaming(c calculatorpb.CalculatorServiceClient) {
 		}
 		log.Printf("Response from PrimeNumberDecompositin: %v", msg)
 	}
+}
+
+func doClientStreaming(c calculatorpb.CalculatorServiceClient) {
+	log.Println("Starting to do client streaming RPC...")
+
+	numbers := []int32{1, 3, 6, 2, 10}
+
+	stream, err := c.Average(context.Background())
+	if err != nil {
+		log.Fatalf("Error while calling LongGreet: %v", err)
+	}
+
+	for _, n := range numbers {
+		fmt.Printf("Sending request: %v\n", n)
+		stream.Send(&calculatorpb.AverageRequest{Number: n})
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	response, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Error while receiving response: %v", err)
+	}
+	fmt.Printf("Long greet respone: %v", response)
 }
