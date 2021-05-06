@@ -13,7 +13,7 @@ type server struct {
 	calculatorpb.UnimplementedCalculatorServiceServer
 }
 
-func (*server) Greet(ctx context.Context, request *calculatorpb.SumRequest) (*calculatorpb.SumResponse, error) {
+func (*server) Sum(ctx context.Context, request *calculatorpb.SumRequest) (*calculatorpb.SumResponse, error) {
 	fmt.Printf("Sum function was invoked with %v\n", request)
 	x := request.GetFirstNumber()
 	y := request.GetSecondNumnber()
