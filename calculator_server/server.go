@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"github.com/mthaler/grpc-calculator-service/calculatorpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
+	"math"
 	"net"
 )
 
@@ -93,6 +96,17 @@ func(*server) FindMaximum(stream calculatorpb.CalculatorService_FindMaximumServe
 			}
 		}
 	}
+}
+
+func (*server) SquareRoot(ctx context.Context, request *calculatorpb.SquareRootRequest) (*calculatorpb.SquareRootResponse, error) {
+	fmt.Printf("SquareRoot function was invoked with %v\n", request)
+	number := request.GetNumber()
+	if number < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Received a negative number: %v", number))
+	}
+	return &calculatorpb.SquareRootResponse{
+		NumberRoot: math.Sqrt(float64(number)),
+	}, nil
 }
 
 func main() {
